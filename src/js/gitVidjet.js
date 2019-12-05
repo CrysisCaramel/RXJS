@@ -1,7 +1,7 @@
-import {fromEvent, EMPTY} from "rxjs";
-import {map, debounceTime, distinctUntilChanged, switchMap, mergeMap, tap,catchError, filter} from "rxjs/operators";
-import {ajax} from "rxjs/ajax";
-const url = "https://api.github.com/search/users?q=";
+// import {fromEvent, EMPTY} from "rxjs";
+// import {map, debounceTime, distinctUntilChanged, switchMap, mergeMap, tap,catchError, filter} from "rxjs/operators";
+// import {ajax} from "rxjs/ajax";
+// const url = "https://api.github.com/search/users?q=";
 
 // const search = document.getElementById("search");
 
@@ -21,3 +21,12 @@ const url = "https://api.github.com/search/users?q=";
 // stream$.subscribe(value => {
 //     console.log(value);
 // })
+
+const btnToTrash = document.querySelector(".btnToTrash"),
+userDelete = document.querySelector(".userDelete"),
+user = document.querySelector(".user");
+
+btnToTrash.addEventListener("click", function() {
+    user.classList.toggle("userScroll")
+    userDelete.classList.toggle("userDeleteView")
+})

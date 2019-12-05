@@ -4,72 +4,101 @@
     width: 377px
     height: 455px
     background: #FFFFFF
+    border: 1px solid #C9C9C9
     &_header
-        position: absolute
         width: 377px
         height: 85px
-        left: 0px
-        top: 0px
+        padding: 5px 0 4px 0
         background: #FCDD6F
-        &_group
-            position: absolute
-            width: 50px
-            height: 49px
-            top: 8px
-            left: 50%
-            transform: translateX(-50%)
+        &_gitHubImg
+            margin: 0 auto
+            width: 50px;
+            height: 50px;
             .fa-github
-                font-size: 3.2em
+                font-size: 50px
         &_title
-            position: absolute;
+            margin: 0 auto
             width: 213px;
             height: 22px;
-            left: 50%;
-            transform: translateX(-50%)
-            top: 59px;
             text-align: center
     &_items
-        position: absolute
-        width: 418px
+        width: 377px
         height: 333px
-        left: -41px
-        top: 85px
-        &_user
-            width: 377px
+        &_wrapper
+            overflow: hidden
             height: 113px
+            position: relative
             display: flex
             justify-content: space-between
             align-items: center
-            &_group
+            .user
                 position: absolute
                 width: 377px
                 height: 113px
-                left: 40px
-                border: 1px solid #C9C9C9;
-            &_delete
-                position: absolute
-                right: -109px;;
+                left: 0
+                bottom: 0
+                transition: 1s all
+                border-bottom: 1px solid #C9C9C9
+                display: flex
+                justify-content: space-between
+                align-items: center
+                transform: translateX(0) 
+                img
+                    margin-left: 17px
+                    width: 72.19px
+                    height: 72.19px
+                &_wrapInfo
+                    width: 220px
+                .btnToTrash
+                    position: relative
+                    width: 29px
+                    min-height: 40px
+                    margin-right: 8px
+                    border: none
+                    cursor: pointer
+                    .up
+                        position: absolute
+                        border: 1px solid #000000;
+                        width: 28.28px;
+                        top: 23%
+                        transform: rotate(45deg);
+                    .down
+                        position: absolute
+                        border: 1px solid #000000;
+                        width: 28.28px;
+                        bottom: 23%
+                        transform: rotate(-45deg);
+            .userScroll
+                transform: translateX(-28%) 
+            .userDelete
+                position: absolute;
                 width: 109px;
-                height: 110px;
+                height: 113px;
+                right: 0;
+                bottom: 0
                 background: #E37171;
-                .imgDelete
-                    position: absolute
-                    width: 52px;
-                    height: 52px;
-                    top: 50%
-                    left: 50%
-                    transform: translate(-50%, -50%)
-                    .fa-trash-alt
-                        font-size: 3.4em
+                transition: 1s
+                display: flex
+                justify-content: center
+                align-items: center
+                cursor: pointer
+                transform: translateX(100%)
+                .fa-trash-alt
+                    display: flex
+                    justify-content: center
+                    align-items: center
+                    width: 52px
+                    height: 52px
+                    font-size: 52px
+            .userDeleteView
+                transform: translateX(0) 
     &_refresh
-        position: absolute
+        width: 377px
+        height: 37px
+        padding: 8px 0
         display: flex
         justify-content: center
         align-items: center
-        width: 377px
-        height: 37px
-        left: 0px
-        top: 418px
         background: #FCDD6F
         &_group
             width: 102px;
@@ -77,6 +106,14 @@
             display: flex
             justify-content: space-between
             align-items: center
+            .imgDelete
+                width: 17px;
+                height: 17px;
+                .fa-sync-alt
+                    font-size: 17px
             &_refresh
+                margin-top: 3px
+                width: 77px
+                font-weight: normal;
                 font-size: 18px;
                 color: #000000;
