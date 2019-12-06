@@ -1,8 +1,10 @@
-import {fromEvent, EMPTY} from "rxjs";
-import {map, debounceTime, distinctUntilChanged, switchMap, mergeMap, tap,catchError, filter, take} from "rxjs/operators";
+import {fromEvent, EMPTY, range} from "rxjs";
+import {map, debounceTime, distinctUntilChanged, switchMap, mergeMap, tap,catchError, filter, take, repeat} from "rxjs/operators";
 import {ajax} from "rxjs/ajax";
 
 const url = "https://api.github.com/users";
+
+
 
 function createBlock(value) {
     const items = document.querySelector(".git-vidjet_items")
@@ -55,19 +57,20 @@ function createBlock(value) {
 }
 
 const refresh = document.querySelector(".git-vidjet_refresh_group_refresh");
-
 const stream$ = fromEvent(refresh, "click")
     .pipe(
-        switchMap( () => ajax.getJSON(url)),
-        // mergeMap (response => response, 3),
-        map (response => response[Math.ceil(Math.random()*29)].url),
-        switchMap(value => ajax.getJSON(value)),
-        take(3)
+        switchMap(() => ajax.getJSON(url).pipe(
+            distinctUntilChanged(),
+            map(data => data[Math.ceil(Math.random()*29)].url),
+            switchMap(value => ajax.getJSON(value)),
+            repeat(3),
+            take(3)
+        )),
     )
 stream$.subscribe(value => {
+    console.log(value);
     createBlock(value)
 })
-
 // map(e => e+1),
 // debounceTime(1000),//интервал через который отправляется значение
 // distinctUntilChanged(),//влзвращает занчение которое не повторяется с предыдущим 
