@@ -1,126 +1,102 @@
-import {fromEvent, EMPTY, range, from} from "rxjs";
-import {map, debounceTime, distinctUntilChanged, switchMap, mergeMap, tap,catchError, filter, take, repeat, scan} from "rxjs/operators";
+import {fromEvent, EMPTY, range, from, interval} from "rxjs";
+import {map, debounceTime, distinctUntilChanged, switchMap, mergeMap, tap,catchError, filter, take, repeat, scan, takeWhile, delayWhen, takeLast, switchMapTo, concatAll, concatMap} from "rxjs/operators";
 import {ajax} from "rxjs/ajax";
+import { promised } from "q";
 
 
 function getStartedGitVidjet() {
     const url = "https://api.github.com/users",
     refresh = document.querySelector(".git-vidjet_refresh_group_refresh"),
-    items = document.querySelector(".git-vidjet_items");
-    
-    let users = [];
-
-    function generateUserBlock() {
-        const random = Math.ceil(Math.random()*29)
-        const user = users[random]
-        createUserBlock(user)
-    }
-
-    function deleteUser(deleteButton, wrapper) {
-        const streamDelete$ = fromEvent(deleteButton, "click").pipe(
-            tap(() => {
-                wrapper.remove()
-            })
-        )
-        streamDelete$.subscribe(() => {
-            createUserBlock(users[Math.ceil(Math.random()*29)])
-        })
-    }
+    items = document.querySelector(".git-vidjet_items"),
+    userDelete = document.querySelector(".userDelete");
 
     function createBlock(value) {
-        const wrap = document.createElement("div");
-        const user = document.createElement("div");
-        const img = document.createElement("img");
-        const userWrapInfo = document.createElement("div");
-        const userWrapInfoTitle = document.createElement("div");
-        const userWrapInfoLocation = document.createElement("div");
-        const userWrapInfoLink = document.createElement("a");
-        const btnToTrash = document.createElement("createUserBlock");
-        const userDelete = document.createElement("div");
+        function createElement(element) {
+            return document.createElement(element)
+        }
+        const wrap = createElement("div");
         wrap.classList.add("git-vidjet_items_wrapper");
+        const user = createElement("div");
         user.classList.add("user");
-        img.classList.add("img");
-        userWrapInfo.classList.add("user_wrapInfo");
-        userWrapInfoTitle.classList.add("user_wrapInfo_title");
-        userWrapInfoLocation.classList.add("user_wrapInfo_location")
-        userWrapInfoLink.classList.add("user_wrapInfo_link");
+        const btnToTrash = createElement("a");
         btnToTrash.classList.add("btnToTrash");
+        const userDelete = createElement("div");
         userDelete.classList.add("userDelete");
-        items.appendChild(wrap)
-        wrap.appendChild(user)
+        items.appendChild(wrap);
+        wrap.appendChild(user);
         wrap.appendChild(userDelete)
-        user.appendChild(img)
-        user.appendChild(userWrapInfo)
+        user.innerHTML = `
+            <img src="${value.avatar_url}" class="img">
+            <div class="user_wrapInfo">
+                <div class="user_wrapInfo_title">${value.name}</div>
+                <div class="user_wrapInfo_location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    ${value.location}
+                </div>
+                <a href="${value.html_url}" class="user_wrapInfo_link">@${value.login}</a>
+            </div>
+        `;
+        userDelete.innerHTML =`<i class="far fa-trash-alt"></i>`;
         user.appendChild(btnToTrash)
-        userWrapInfo.appendChild(userWrapInfoTitle)
-        userWrapInfo.appendChild(userWrapInfoLocation)
-        userWrapInfo.appendChild(userWrapInfoLink)
-        img.src = value.avatar_url
-        userWrapInfoTitle.textContent = value.name
-        userWrapInfoLocation.innerHTML = `
-        <i class="fas fa-map-marker-alt"></i>
-        ${value.location}
-        `;
-        userWrapInfoLink.href = value.html_url
-        userWrapInfoLink.textContent = `@${value.login}`
-        btnToTrash.innerHTML = `
-            <span class="up"></span>
-            <span class="down"></span>
-        `;
-        userDelete.innerHTML = `
-        <i class="far fa-trash-alt"></i>
-        `
+        btnToTrash.innerHTML = `<span class="up"></span>
+        <span class="down"></span>`;
         btnToTrash.addEventListener("click", function() {
         user.classList.toggle("userScroll")
         userDelete.classList.toggle("userDeleteView")
-        deleteUser(userDelete, wrap)
         })
+        // createDeleteUserStream(value,userDelete)
     }
 
-    function createUserBlock(user) {
+    function generateUsers(value, number) {
         setTimeout(() => {
-            fetch(user).then(data => {
-                return data.json()
-            }).then(data => {
-                createBlock(data)
+            const random = Math.ceil(Math.random() * (value.length - number)),
+            desiredUsers = value.slice(random, random+number),
+            storeUsersUrls = desiredUsers.map(url => fetch(url));
+            Promise.all(storeUsersUrls)
+            .then(responses => Promise.all(responses.map(res => res.json())))
+            .then(responses => {
+                responses.forEach(dataUser => {
+                    createBlock(dataUser)
+                })
             })
-        }, 1000);
-    } 
+        }, 1500)
+    }
 
-    const stream$ = ajax.getJSON(url).pipe(
-        debounceTime(1000),
-        mergeMap(items => items),
-        map(value => value.url),
-    );
-    stream$.subscribe(
-        (value) => users.push(value), 
-        (err) => console.log(err), 
-        () => {
-            generateUserBlock();
-            generateUserBlock();
-            generateUserBlock();
-            const streamRefresh$ = fromEvent(refresh, "click").pipe(
-                tap(() => items.innerHTML = "")
-            )
-            streamRefresh$.subscribe(() => {
-                generateUserBlock();
-                generateUserBlock();
-                generateUserBlock();
+    function createMainStream() {
+        const stream$ = ajax.getJSON(url).pipe(
+            mergeMap(items => items),
+            map(data => data.url),
+            scan((acc,v) => acc.concat(v), []),
+            takeLast(1),
+            tap(data => {
+                generateUsers(data, 3)
+            }),
+            concatMap((data) => fromEvent(refresh, "click").pipe(
+                tap(() => items.innerHTML = ""),
+                map(() => data),
+            )),
+            switchMap(() => fromEvent(userDelete, "click").pipe(
+                tap(dat => console.log(dat))
+            ))
+            
+        )
+        stream$.subscribe(
+            (value) => {
+                generateUsers(value, 3)
             })
-        }
-    )
+    }
+    
+    // function createDeleteUserStream(value, btn) {
+    //     const deleteUser$ = fromEvent(btn, "click")
+    //     .pipe(
+    //         tap(() => alert("sadsad"))
+    //     )
+    //     deleteUser$.subscribe(value => {
+
+    //     })
+    // }
+
+    createMainStream()
 }
 
 getStartedGitVidjet()
-
-
-// map(e => e+1),
-// debounceTime(1000),//интервал через который отправляется значение
-// distinctUntilChanged(),//влзвращает занчение которое не повторяется с предыдущим 
-// // tap(() => )
-// filter(v => v.trim()),
-// вытаскивает значения из нового стрима 
-// mergeMap(items => items)//реагирует на каждый запрос
-// .pipe(
-//     // catchError(err => EMPTY)
-// ),//создает новый стрим
