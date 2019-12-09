@@ -1,4 +1,4 @@
-.git-vidjet
+.git-widget
     position: relative
     margin: 0 auto
     width: 377px
@@ -133,13 +133,16 @@
             justify-content: space-between
             align-items: center
             .imgDelete
-                // animation: spaces 0.5s ease-out 0s infinite normal none;
-                margin-bottom: 2px
-                width: 17px;
-                height: 17px;
+                display: flex
+                align-items: center
+                width: 18px;
+                height: 18px;
                 .fa-sync-alt
                     font-size: 17px
+                .animate
+                    animation: refresh 2s ease-out 1 normal none
             &_refresh
+                padding-top: 1px
                 display: flex
                 align-items: center
                 width: 77px

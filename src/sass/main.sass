@@ -1,20 +1,24 @@
 body 
     box-sizing: border-box
+    perspective: 4000px
+    position: relative
 
 *
     font-family: 'Roboto', sans-serif;
     padding: 0
     margin: 0
 
-// @keyframes spaces 
-//     0%
-//         transform: rotate(0deg)
-//    50% 
-//        transform: rotate(45deg) 
-//        box-shadow: 0 0 10px green
-//    100% 
-//        transform: rotate(90deg)
-    
+@keyframes refresh
+  0%
+    transform: rotate(0deg)
+  25%
+    transform: rotata(90deg)  
+  50%
+    transform: rotate(180deg)
+  75%
+    transform: rotate(270deg)
+  100%
+    transform: rotate(360deg)
 
 
-@import "modules/gitVidjet";
+@import "modules/gitwidget";
